@@ -61,6 +61,11 @@ func (e Event) SetID(id string) Event {
 	return e
 }
 
+// Empty returns event with INFO level, no text and default type, source and format.
+func Empty() Event {
+	return Event{Text: "", Time: time.Now(), Level: INFO, Type: Any, Source: EvsEmpty, Format: None}
+}
+
 // Info returns event with INFO level and default type, source and format.
 func Info(t string) Event {
 	return Event{Text: t, Time: time.Now(), Level: INFO, Type: Any, Source: EvsEmpty, Format: None}
