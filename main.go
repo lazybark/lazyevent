@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 )
 
 func main() {
-	cli := logger.NewCLI(events.Any)
+	cli := logger.NewCLI(events.ErrorFlow)
 	ptl, err := logger.NewPlaintext("some.log", false, events.Any)
 	if err != nil {
 		log.Fatal(err)
@@ -36,4 +37,28 @@ func main() {
 	time.Sleep(2 * time.Second)
 	p.Log(e.SetText("And the same moment something else happened!"))
 
+	//Using LogErrOnly
+	//Should be logged, but only to CLI
+	p.LogErrOnly(GetErr(), events.ErrorFlow)
+	p.LogErrOnly(GetErrEvent(), events.ErrorFlow)
+	//Should NOT be logged
+	p.LogErrOnly(GetString(), events.ErrorFlow)
+	p.LogErrOnly(GetNonErrEvent(), events.ErrorFlow)
+
+}
+
+func GetErr() error {
+	return fmt.Errorf("well, that's an error")
+}
+
+func GetErrEvent() events.Event {
+	return events.Error("error event occured!")
+}
+
+func GetString() string {
+	return "well, that's a string"
+}
+
+func GetNonErrEvent() events.Event {
+	return events.Warning("it's just a warning")
 }

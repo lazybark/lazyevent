@@ -68,15 +68,15 @@ func (ep *LogProcessor) ForceLevel(l events.Level) {
 }
 
 // AddLoggers adds list of loggers to EP's pool
-func (ep *LogProcessor) AddLoggers(la ...logger.ILogger) {
-	ep.loggers = append(ep.loggers, la...)
+func (lp *LogProcessor) AddLoggers(la ...logger.ILogger) {
+	lp.loggers = append(lp.loggers, la...)
 }
 
 // Log logs event according to it's type and level.
 //
 // It panics after logging PANIC-level and calls to
 // exit(2) after logging FATAL event.
-func (ep *LogProcessor) Log(e events.Event) {
+func (lp *LogProcessor) Log(e events.Event) {
 	//Set ID for event to avoid ambiguity in logs.
 	//Skip in case it has custom ID
 	if e.ID == "" {
@@ -87,20 +87,20 @@ func (ep *LogProcessor) Log(e events.Event) {
 		e.Time = time.Now()
 	}
 
-	if ep.force.forceSource {
-		e.Source = ep.force.source
+	if lp.force.forceSource {
+		e.Source = lp.force.source
 	}
-	if ep.force.forceLevel {
-		e.Level = ep.force.level
+	if lp.force.forceLevel {
+		e.Level = lp.force.level
 	}
 
 	var logTypes []events.LogType
-	for _, lg := range ep.loggers {
+	for _, lg := range lp.loggers {
 		logTypes = lg.Type()
 		for _, lt := range logTypes {
 			if e.Type == lt || lt == events.Any {
-				if err := lg.Log(e, ep.timeFormat); err != nil && ep.reportErrors {
-					go func(err error) { ep.errChan <- fmt.Errorf("error making log record: %w", err) }(err)
+				if err := lg.Log(e, lp.timeFormat); err != nil && lp.reportErrors {
+					go func(err error) { lp.errChan <- fmt.Errorf("error making log record: %w", err) }(err)
 				}
 				break
 			}
@@ -110,8 +110,8 @@ func (ep *LogProcessor) Log(e events.Event) {
 
 	//In case we use chan, we do not panic or exit - it will be job of
 	//external routine
-	if ep.useChan {
-		go func(e events.Event) { ep.evChan <- e }(e)
+	if lp.useChan {
+		go lp.SendEventToChan(e)
 	} else {
 		if e.Level == events.PANIC {
 			panic(e.Text)
@@ -120,6 +120,10 @@ func (ep *LogProcessor) Log(e events.Event) {
 			os.Exit(2)
 		}
 	}
+}
+
+func (lp *LogProcessor) SendEventToChan(e events.Event) {
+	lp.evChan <- e
 }
 
 // PanicInCaseErr does nothing if nil is provided, but panics in case error is not nil.
@@ -144,7 +148,7 @@ func (ep *LogProcessor) PanicInCaseErr(err error, lt ...events.LogType) {
 //
 // lt specifies logtype to use for this specific log, but only first one will be used
 // as exit() will cause app to stop after first log entry.
-func (ep *LogProcessor) FatalInCaseErr(err error, lt ...events.LogType) {
+func (lp *LogProcessor) FatalInCaseErr(err error, lt ...events.LogType) {
 	if err == nil {
 		return
 	}
@@ -152,30 +156,61 @@ func (ep *LogProcessor) FatalInCaseErr(err error, lt ...events.LogType) {
 
 	if len(lt) > 0 {
 		e.Type = lt[0]
-		ep.Log(e)
+		lp.Log(e)
 	} else {
-		ep.Log(e)
+		lp.Log(e)
 	}
 }
 
 // LogErrOnly simply logs any error or does nothind in case nil.
 //
 // May generate doubles in case same logger is used for several types
-// from lt. Doubles ID will stay the same.
-func (ep *LogProcessor) LogErrOnly(err error, lt ...events.LogType) {
+// presenting in lt. Doubles ID will stay the same.
+// Also, PANIC & FATAL will make only one log entry before panic() & exit().
+func (lp *LogProcessor) LogErrOnly(err interface{}, lt ...events.LogType) {
 	if err == nil {
 		return
 	}
-	e := events.Error(err.Error())
+
+	doLog := false
+
+	e := events.Empty()
 	//Setting ID in case there are few logtypes we should use
 	e.ID = uuid.New().String()
+	e.Level = events.ERR
+
+	if er, ok := err.(error); ok {
+		e.Text = er.Error()
+		doLog = true
+	}
+
+	if ev, ok := err.(events.Event); ok {
+		//We can not simply make e = ev, need to investigate
+		if ev.Level > events.WARN {
+			doLog = true
+			if ev.ID != "" {
+				e.ID = ev.ID
+			}
+			e.Level = ev.Level
+			e.Source = ev.Source
+			e.Time = ev.Time
+			e.Text = ev.Text
+			e.TimeFixed = ev.TimeFixed
+			e.Format = ev.Format
+		}
+
+	}
+
+	if !doLog {
+		return
+	}
 
 	if len(lt) > 0 {
 		for _, l := range lt {
 			e.Type = l
-			ep.Log(e)
+			lp.Log(e)
 		}
 	} else {
-		ep.Log(e)
+		lp.Log(e)
 	}
 }
