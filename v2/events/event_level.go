@@ -1,14 +1,10 @@
 package events
 
-//Level determines how critical the event is.
+//Level determines how critical the event is
 type Level int
 
 const (
 	el_start Level = iota
-
-	//All represents all levels. It will be empty in logs and passed to every logger
-	//according to loggertype only
-	ALL
 
 	//INFO informs reader about any event in app
 	INFO

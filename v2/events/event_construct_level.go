@@ -1,11 +1,5 @@
 package events
 
-//All sets event Level to ALL
-func (e Event) All() Event {
-	e.Level = ALL
-	return e
-}
-
 //Info sets event Level to INFO
 func (e Event) Info() Event {
 	e.Level = INFO
