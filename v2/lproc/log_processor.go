@@ -130,17 +130,46 @@ func (lp *LogProcessor) SendEventToChan(e events.Event) {
 //
 // lt specifies logtype to use for this specific log, but only first one will be used
 // as panic will cause app to stop after first log entry.
-func (ep *LogProcessor) PanicInCaseErr(err error, lt ...events.LogType) {
+func (lp *LogProcessor) PanicInCaseErr(err interface{}, lt ...events.LogType) {
 	if err == nil {
 		return
 	}
-	e := events.Panic(err.Error())
+
+	doLog := false
+
+	e := events.Empty()
+	e.Level = events.PANIC
+
+	if er, ok := err.(error); ok {
+		e.Text = er.Error()
+		doLog = true
+	}
+
+	if ev, ok := err.(events.Event); ok {
+		//We can not simply make e = ev, need to investigate
+		if ev.Level > events.WARN {
+			doLog = true
+			if ev.ID != "" {
+				e.ID = ev.ID
+			}
+			e.Level = ev.Level
+			e.Source = ev.Source
+			e.Time = ev.Time
+			e.Text = ev.Text
+			e.TimeFixed = ev.TimeFixed
+			e.Format = ev.Format
+		}
+	}
+
+	if !doLog {
+		return
+	}
 
 	if len(lt) > 0 {
 		e.Type = lt[0]
-		ep.Log(e)
+		lp.Log(e)
 	} else {
-		ep.Log(e)
+		lp.Log(e)
 	}
 }
 
@@ -148,11 +177,40 @@ func (ep *LogProcessor) PanicInCaseErr(err error, lt ...events.LogType) {
 //
 // lt specifies logtype to use for this specific log, but only first one will be used
 // as exit() will cause app to stop after first log entry.
-func (lp *LogProcessor) FatalInCaseErr(err error, lt ...events.LogType) {
+func (lp *LogProcessor) FatalInCaseErr(err interface{}, lt ...events.LogType) {
 	if err == nil {
 		return
 	}
-	e := events.Fatal(err.Error())
+
+	doLog := false
+
+	e := events.Empty()
+	e.Level = events.FATAL
+
+	if er, ok := err.(error); ok {
+		e.Text = er.Error()
+		doLog = true
+	}
+
+	if ev, ok := err.(events.Event); ok {
+		//We can not simply make e = ev, need to investigate
+		if ev.Level > events.WARN {
+			doLog = true
+			if ev.ID != "" {
+				e.ID = ev.ID
+			}
+			e.Level = ev.Level
+			e.Source = ev.Source
+			e.Time = ev.Time
+			e.Text = ev.Text
+			e.TimeFixed = ev.TimeFixed
+			e.Format = ev.Format
+		}
+	}
+
+	if !doLog {
+		return
+	}
 
 	if len(lt) > 0 {
 		e.Type = lt[0]
