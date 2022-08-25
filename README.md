@@ -7,4 +7,4 @@ customized for almost any app. It treats events as objects with properties that 
                                     of the same event will generate unique ID for every log record to avoid ambiguity.
                                     Time of event can be fixed or updated each time the template is logged.
 <br>
-Detailed description with code examples [here](https://lazybark.dev/go-helpers/#npt).
+Detailed description with code examples [here](https://lazybark.dev/lazyevent/).
