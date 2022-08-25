@@ -23,7 +23,11 @@ var AnsiEscaper = regexp.MustCompile(`\033\[\d*m`)
 
 // Log pushes event data into default output
 func (l CLI) Log(e events.Event, timeFormat string) error {
-	fmt.Print(Format(e, timeFormat))
+	log := Format(e, timeFormat)
+	if e.Format != events.None {
+		log = FormatColors(e.Format, log)
+	}
+	fmt.Print(log)
 	return nil
 }
 
