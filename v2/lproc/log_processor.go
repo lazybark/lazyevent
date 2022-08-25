@@ -98,7 +98,7 @@ func (lp *LogProcessor) Log(e events.Event) {
 	for _, lg := range lp.loggers {
 		logTypes = lg.Type()
 		for _, lt := range logTypes {
-			if e.Type == lt || lt == events.Any {
+			if e.Type == lt || lt == events.Any || e.Type == events.Any {
 				if err := lg.Log(e, lp.timeFormat); err != nil && lp.reportErrors {
 					go func(err error) { lp.errChan <- fmt.Errorf("error making log record: %w", err) }(err)
 				}
@@ -126,10 +126,11 @@ func (lp *LogProcessor) SendEventToChan(e events.Event) {
 	lp.evChan <- e
 }
 
-// PanicInCaseErr does nothing if nil is provided, but panics in case error is not nil.
+// PanicInCaseErr does nothing if nil or event with level<ERR is provided,
+// but panics in case error is not nil.
 //
-// lt specifies logtype to use for this specific log, but only first one will be used
-// as panic will cause app to stop after first log entry.
+// May generate doubles in case same logger is used for several types
+// presenting in lt. Doubles will have same ID
 func (lp *LogProcessor) PanicInCaseErr(err interface{}, lt ...events.LogType) {
 	if err == nil {
 		return
@@ -152,7 +153,7 @@ func (lp *LogProcessor) PanicInCaseErr(err interface{}, lt ...events.LogType) {
 			if ev.ID != "" {
 				e.ID = ev.ID
 			}
-			e.Level = ev.Level
+			e.Level = events.PANIC
 			e.Source = ev.Source
 			e.Time = ev.Time
 			e.Text = ev.Text
@@ -173,10 +174,11 @@ func (lp *LogProcessor) PanicInCaseErr(err interface{}, lt ...events.LogType) {
 	}
 }
 
-// FatalInCaseErr does nothing if nil is provided, but panics in case error is not nil.
+// FatalInCaseErr does nothing if nil or event with level<ERR is provided,
+// but calls os.Exit() in case error is not nil.
 //
-// lt specifies logtype to use for this specific log, but only first one will be used
-// as exit() will cause app to stop after first log entry.
+// May generate doubles in case same logger is used for several types
+// presenting in lt. Doubles will have same ID
 func (lp *LogProcessor) FatalInCaseErr(err interface{}, lt ...events.LogType) {
 	if err == nil {
 		return
@@ -199,7 +201,7 @@ func (lp *LogProcessor) FatalInCaseErr(err interface{}, lt ...events.LogType) {
 			if ev.ID != "" {
 				e.ID = ev.ID
 			}
-			e.Level = ev.Level
+			e.Level = events.FATAL
 			e.Source = ev.Source
 			e.Time = ev.Time
 			e.Text = ev.Text
@@ -223,8 +225,7 @@ func (lp *LogProcessor) FatalInCaseErr(err interface{}, lt ...events.LogType) {
 // LogErrOnly simply logs any error or does nothind in case nil.
 //
 // May generate doubles in case same logger is used for several types
-// presenting in lt. Doubles ID will stay the same.
-// Also, PANIC & FATAL will make only one log entry before panic() & exit().
+// presenting in lt. Doubles will have same ID
 func (lp *LogProcessor) LogErrOnly(err interface{}, lt ...events.LogType) {
 	if err == nil {
 		return
