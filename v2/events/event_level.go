@@ -32,7 +32,6 @@ const (
 
 var eLevelNames = [...]string{
 	"",
-	"",
 	"INFO",
 	"NOTE",
 	"WARNING",
