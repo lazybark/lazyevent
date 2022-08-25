@@ -29,14 +29,14 @@ func (e Event) SetText(t string) Event {
 	return e
 }
 
-// FixTime marks event time as fixed, so logger will NOT update its value
+// FixTime marks event time as fixed, so logger will NOT use time.Now() value
 // each time event is logged
 func (e Event) FixTime() Event {
 	e.TimeFixed = true
 	return e
 }
 
-// UnFixTime marks event time as non-fixed, so logger WILL update its value
+// UnFixTime marks event time as non-fixed, so logger WILL use time.Now() value
 // each time event is logged
 func (e Event) UnFixTime() Event {
 	e.TimeFixed = false
@@ -61,42 +61,42 @@ func (e Event) SetID(id string) Event {
 	return e
 }
 
-// Empty returns event with INFO level, no text and default type, source and format.
+// Empty returns event with INFO level, no text and default type, source and format
 func Empty() Event {
 	return Event{Text: "", Time: time.Now(), Level: INFO, Type: Any, Source: EvsEmpty, Format: None}
 }
 
-// Info returns event with INFO level and default type, source and format.
+// Info returns event with INFO level and default type, source and format
 func Info(t string) Event {
 	return Event{Text: t, Time: time.Now(), Level: INFO, Type: Any, Source: EvsEmpty, Format: None}
 }
 
-// Note returns event with NOTE level and default type, source and format.
+// Note returns event with NOTE level and default type, source and format
 func Note(t string) Event {
 	return Event{Text: t, Time: time.Now(), Level: NOTE, Type: Any, Source: EvsEmpty, Format: None}
 }
 
-// Warning returns event with WARN level and default type, source and format.
+// Warning returns event with WARN level and default type, source and format
 func Warning(t string) Event {
 	return Event{Text: t, Time: time.Now(), Level: WARN, Type: Any, Source: EvsEmpty, Format: None}
 }
 
-// Error returns event with ERR level and default type, source and format.
+// Error returns event with ERR level and default type, source and format
 func Error(t string) Event {
 	return Event{Text: t, Time: time.Now(), Level: ERR, Type: Any, Source: EvsEmpty, Format: None}
 }
 
-// Critical returns event with CRIT level and default type, source and format.
+// Critical returns event with CRIT level and default type, source and format
 func Critical(t string) Event {
 	return Event{Text: t, Time: time.Now(), Level: CRIT, Type: Any, Source: EvsEmpty, Format: None}
 }
 
-// Panic returns event with PANIC level and default type, source and format.
+// Panic returns event with PANIC level and default type, source and format
 func Panic(t string) Event {
 	return Event{Text: t, Time: time.Now(), Level: PANIC, Type: Any, Source: EvsEmpty, Format: None}
 }
 
-// Fatal returns event with FATAL level and default type, source and format.
+// Fatal returns event with FATAL level and default type, source and format
 func Fatal(t string) Event {
 	return Event{Text: t, Time: time.Now(), Level: FATAL, Type: Any, Source: EvsEmpty, Format: None}
 }
