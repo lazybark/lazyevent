@@ -29,6 +29,11 @@ func (ed EvDefault) setProps(e Event) Event {
 	return e
 }
 
+// Empty returns event with INFO level, no text and default type, source and format
+func (ed EvDefault) Empty() Event {
+	return ed.setProps(Empty())
+}
+
 // Info returns event with INFO level and type, source, format set to ed parameters
 func (ed EvDefault) Info(t string) Event {
 	return ed.setProps(Info(t))
