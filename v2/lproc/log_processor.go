@@ -273,3 +273,7 @@ func (lp *LogProcessor) LogErrOnly(err interface{}, lt ...events.LogType) {
 		lp.Log(e)
 	}
 }
+
+func (lp LogProcessor) LogRed(e events.Event) {
+	lp.Log(e.Red())
+}
