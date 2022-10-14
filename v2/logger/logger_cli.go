@@ -10,12 +10,15 @@ import (
 // CLI is a default logger that formats event data and pushes to default
 // output via fmt.Print
 type CLI struct {
-	lTypes []events.LogType
+	//pureText means logger will print out only log text itself
+	//Without time, date, etc, but with color formatting.
+	pureText bool
+	lTypes   []events.LogType
 }
 
 // NewCLI returns instance of CLI logger with desired log types support
-func NewCLI(lTypes ...events.LogType) *CLI {
-	return &CLI{lTypes: lTypes}
+func NewCLI(pureText bool, lTypes ...events.LogType) *CLI {
+	return &CLI{pureText: pureText, lTypes: lTypes}
 }
 
 // AnsiEscaper is a regexp to find ANSI escape characters in text
@@ -23,7 +26,12 @@ var AnsiEscaper = regexp.MustCompile(`\033\[\d*m`)
 
 // Log pushes event data into default output
 func (l CLI) Log(e events.Event, timeFormat string) error {
-	log := Format(e, timeFormat)
+	log := ""
+	if l.pureText {
+		log = FormatPureText(e)
+	} else {
+		log = Format(e, timeFormat)
+	}
 	if e.Format != events.None {
 		log = FormatColors(e.Format, log)
 	}

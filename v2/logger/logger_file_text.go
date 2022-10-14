@@ -9,23 +9,31 @@ import (
 )
 
 type PlaintextFileLogger struct {
-	lTypes []events.LogType
-	file   *os.File
+	//pureText means logger will print out only log text itself
+	pureText bool
+	lTypes   []events.LogType
+	file     *os.File
 }
 
 // NewPlaintext returns logger capable of appending strings to text file
-func NewPlaintext(path string, truncate bool, lTypes ...events.LogType) (*PlaintextFileLogger, error) {
+func NewPlaintext(path string, pureText bool, truncate bool, lTypes ...events.LogType) (*PlaintextFileLogger, error) {
 	f, err := fsw.MakePathToFile(path, truncate)
 	if err != nil {
 		return nil, fmt.Errorf("[NewPlaintext] error making log path: %w", err)
 	}
 
-	return &PlaintextFileLogger{lTypes: lTypes, file: f}, nil
+	return &PlaintextFileLogger{pureText: pureText, lTypes: lTypes, file: f}, nil
 }
 
 // Log pushes event data into default output
 func (l PlaintextFileLogger) Log(e events.Event, timeFormat string) error {
-	_, err := l.file.WriteString(Format(e, timeFormat))
+	log := ""
+	if l.pureText {
+		log = FormatPureText(e)
+	} else {
+		log = Format(e, timeFormat)
+	}
+	_, err := l.file.WriteString(log)
 	if err != nil {
 		return err
 	}

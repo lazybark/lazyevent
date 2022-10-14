@@ -20,9 +20,17 @@ type ILogger interface {
 // Structure is: eventID->time->level->source->text
 var LogPattern = "%s	%s	%s	%s	%s\n"
 
+// LogPatternPureText is used to create pure text messages without time, id, etc.
+// Only line break is added.
+var LogPatternPureText = "%s\n"
+
 // Format returns event data in string formatted accordingly to LogPattern
 func Format(e events.Event, timeFormat string) string {
 	return fmt.Sprintf(LogPattern, e.ID, e.Time.Format(timeFormat), e.Level, e.Source, e.Text)
+}
+
+func FormatPureText(e events.Event) string {
+	return fmt.Sprintf(LogPatternPureText, e.Text)
 }
 
 type LogPatternJSON struct {

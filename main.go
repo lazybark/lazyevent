@@ -13,11 +13,11 @@ import (
 func main() {
 	//Create  loggers (non-default loggers would just need to implement logger.ILogger interface)
 	//CLI logger for all events
-	cli := logger.NewCLI(events.Any)
+	cli := logger.NewCLI(true, events.Any)
 	//CLI for errors only
-	cli2 := logger.NewCLI(events.ErrorFlow)
+	cli2 := logger.NewCLI(true, events.ErrorFlow)
 	//Text loggers for all event types
-	ptl, err := logger.NewPlaintext("some.log", false, events.Any)
+	ptl, err := logger.NewPlaintext("some.log", false, false, events.Any)
 	if err != nil {
 		log.Fatal(err)
 	}
