@@ -3,24 +3,35 @@ package logger
 import (
 	"fmt"
 	"os"
+	"time"
 
-	"github.com/lazybark/go-helpers/fsw"
 	"github.com/lazybark/lazyevent/v2/events"
 )
 
 type CSVFileLogger struct {
-	lTypes []events.LogType
-	file   *os.File
+	lTypes         []events.LogType
+	rotateFiles    bool
+	rotateDuration time.Duration
+	lastLog        time.Time
+	filepath       string
+	file           *os.File
 }
 
 // NewCSVtext returns logger capable of creating csv file records.
-func NewCSVtext(path string, truncate bool, lTypes ...events.LogType) (*CSVFileLogger, error) {
-	f, err := fsw.MakePathToFile(path, truncate)
+func NewCSVtext(path string, truncate bool, rotateFiles int, lTypes ...events.LogType) (*CSVFileLogger, error) {
+	f, err := makeLogFile(path, truncate, "csv")
 	if err != nil {
-		return nil, fmt.Errorf("[CSVFileLogger] error making log path: %w", err)
+		return nil, fmt.Errorf("[NewCSVtext] %w", err)
 	}
 
-	csv := &CSVFileLogger{lTypes: lTypes, file: f}
+	csv := &CSVFileLogger{
+		lTypes:         lTypes,
+		rotateFiles:    rotateFiles > 0,
+		rotateDuration: time.Minute * time.Duration(rotateFiles),
+		lastLog:        time.Now(),
+		file:           f,
+		filepath:       path,
+	}
 
 	if truncate {
 		_, err := f.WriteString(CSVHead)
@@ -34,6 +45,21 @@ func NewCSVtext(path string, truncate bool, lTypes ...events.LogType) (*CSVFileL
 
 // Log pushes event data into default output
 func (l CSVFileLogger) Log(e events.Event, timeFormat string) error {
+	//Make new file in case old one is... old
+	if time.Since(l.lastLog) > l.rotateDuration && l.rotateFiles {
+		l.file.Close()
+		f, err := makeLogFile(l.filepath, true, "csv")
+		if err != nil {
+			return fmt.Errorf("[CSVFileLogger][Log] %w", err)
+		}
+		l.file = f
+
+		_, err = f.WriteString(CSVHead)
+		if err != nil {
+			return fmt.Errorf("[CSVFileLogger][Log] error making CSV head entry: %w", err)
+		}
+	}
+
 	_, err := l.file.WriteString(FormatCSV(e, timeFormat))
 	if err != nil {
 		return fmt.Errorf("[CSVFileLogger] error making log entry: %w", err)

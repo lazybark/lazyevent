@@ -17,15 +17,15 @@ func main() {
 	//CLI for errors only
 	cli2 := logger.NewCLI(true, events.ErrorFlow)
 	//Text loggers for all event types
-	ptl, err := logger.NewPlaintext("some.log", false, false, events.Any)
+	ptl, err := logger.NewPlaintext("some", false, false, 1, events.Any)
 	if err != nil {
 		log.Fatal(err)
 	}
-	js, err := logger.NewJSONtext("some.json", false, events.Any)
+	js, err := logger.NewJSONtext("some", false, 1, events.Any)
 	if err != nil {
 		log.Fatal(err)
 	}
-	csv, err := logger.NewCSVtext("some.csv", true, events.Any)
+	csv, err := logger.NewCSVtext("some", true, 1, events.Any)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,6 +74,9 @@ func main() {
 		Format: events.None,
 	}
 	p.Log(ed.Note("Event from default template"))
+
+	time.Sleep(time.Minute)
+	p.Log(events.Info("Some info after a minute").Verbose())
 
 }
 
