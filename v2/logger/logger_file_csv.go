@@ -44,7 +44,7 @@ func NewCSVtext(path string, truncate bool, rotateFiles int, lTypes ...events.Lo
 }
 
 // Log pushes event data into default output
-func (l CSVFileLogger) Log(e events.Event, timeFormat string) error {
+func (l *CSVFileLogger) Log(e events.Event, timeFormat string) error {
 	//Make new file in case old one is... old
 	if time.Since(l.lastLog) > l.rotateDuration && l.rotateFiles {
 		l.file.Close()
@@ -60,6 +60,7 @@ func (l CSVFileLogger) Log(e events.Event, timeFormat string) error {
 		}
 	}
 
+	l.lastLog = time.Now()
 	_, err := l.file.WriteString(FormatCSV(e, timeFormat))
 	if err != nil {
 		return fmt.Errorf("[CSVFileLogger] error making log entry: %w", err)

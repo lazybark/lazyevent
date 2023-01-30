@@ -38,7 +38,7 @@ func NewPlaintext(path string, pureText bool, truncate bool, rotateFiles int, lT
 }
 
 // Log pushes event data into default output
-func (l PlaintextFileLogger) Log(e events.Event, timeFormat string) error {
+func (l *PlaintextFileLogger) Log(e events.Event, timeFormat string) error {
 	//Make new file in case old one is... old
 	if time.Since(l.lastLog) > l.rotateDuration && l.rotateFiles {
 		l.file.Close()
@@ -49,6 +49,7 @@ func (l PlaintextFileLogger) Log(e events.Event, timeFormat string) error {
 		l.file = f
 	}
 
+	l.lastLog = time.Now()
 	log := ""
 	if l.pureText {
 		log = FormatPureText(e)

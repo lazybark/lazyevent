@@ -39,7 +39,7 @@ func NewJSONtext(path string, truncate bool, rotateFiles int, lTypes ...events.L
 }
 
 // Log pushes event data into default output
-func (l JSONFileLogger) Log(e events.Event, timeFormat string) error {
+func (l *JSONFileLogger) Log(e events.Event, timeFormat string) error {
 	//Make new file in case old one is... old
 	if time.Since(l.lastLog) > l.rotateDuration && l.rotateFiles {
 		l.file.Close()
@@ -50,6 +50,7 @@ func (l JSONFileLogger) Log(e events.Event, timeFormat string) error {
 		l.file = f
 	}
 
+	l.lastLog = time.Now()
 	js, err := FormatJSON(e, timeFormat)
 	if err != nil {
 		return fmt.Errorf("[JSONFileLogger] error formatting event to JSON: %w", err)
