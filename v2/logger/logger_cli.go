@@ -25,7 +25,7 @@ func NewCLI(pureText bool, lTypes ...events.LogType) *CLI {
 var AnsiEscaper = regexp.MustCompile(`\033\[\d*m`)
 
 // Log pushes event data into default output
-func (l CLI) Log(e events.Event, timeFormat string) error {
+func (l *CLI) Log(e events.Event, timeFormat string) error {
 	log := ""
 	if l.pureText {
 		log = FormatPureText(e)
@@ -40,7 +40,7 @@ func (l CLI) Log(e events.Event, timeFormat string) error {
 }
 
 // Type returns set of types supported by the logger
-func (l CLI) Type() []events.LogType { return l.lTypes }
+func (l *CLI) Type() []events.LogType { return l.lTypes }
 
 // AvoidANSI uses regex to drop all ANSI escape sequences in event text.
 func AvoidANSI(s string) string { return AnsiEscaper.ReplaceAllString(s, "") }

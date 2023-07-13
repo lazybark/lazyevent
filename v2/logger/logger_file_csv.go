@@ -70,4 +70,4 @@ func (l *CSVFileLogger) Log(e events.Event, timeFormat string) error {
 }
 
 // Type returns set of types supported by the logger
-func (l CSVFileLogger) Type() []events.LogType { return l.lTypes }
+func (l *CSVFileLogger) Type() []events.LogType { return l.lTypes }
