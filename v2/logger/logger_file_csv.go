@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/lazybark/lazyevent/v2/events"
@@ -13,8 +14,10 @@ type CSVFileLogger struct {
 	rotateFiles    bool
 	rotateDuration time.Duration
 	lastLog        time.Time
+	llMutex        *sync.RWMutex
 	filepath       string
 	file           *os.File
+	fileMutex      *sync.Mutex
 }
 
 // NewCSVtext returns logger capable of creating csv file records.
@@ -31,6 +34,8 @@ func NewCSVtext(path string, truncate bool, rotateFiles int, lTypes ...events.Lo
 		lastLog:        time.Now(),
 		file:           f,
 		filepath:       path,
+		llMutex:        &sync.RWMutex{},
+		fileMutex:      &sync.Mutex{},
 	}
 
 	if truncate {
@@ -45,8 +50,11 @@ func NewCSVtext(path string, truncate bool, rotateFiles int, lTypes ...events.Lo
 
 // Log pushes event data into default output
 func (l *CSVFileLogger) Log(e events.Event, timeFormat string) error {
+	l.SetLastLog(time.Now())
+	l.fileMutex.Lock()
+	defer l.fileMutex.Unlock()
 	//Make new file in case old one is... old
-	if time.Since(l.lastLog) > l.rotateDuration && l.rotateFiles {
+	if time.Since(l.LastLog()) > l.rotateDuration && l.rotateFiles {
 		l.file.Close()
 		f, err := makeLogFile(l.filepath, true, "csv")
 		if err != nil {
@@ -60,7 +68,6 @@ func (l *CSVFileLogger) Log(e events.Event, timeFormat string) error {
 		}
 	}
 
-	l.lastLog = time.Now()
 	_, err := l.file.WriteString(FormatCSV(e, timeFormat))
 	if err != nil {
 		return fmt.Errorf("[CSVFileLogger] error making log entry: %w", err)
@@ -71,3 +78,17 @@ func (l *CSVFileLogger) Log(e events.Event, timeFormat string) error {
 
 // Type returns set of types supported by the logger
 func (l *CSVFileLogger) Type() []events.LogType { return l.lTypes }
+
+// LastLog returns last time the logger was used
+func (l *CSVFileLogger) LastLog() time.Time {
+	l.llMutex.RLock()
+	defer l.llMutex.RUnlock()
+	return l.lastLog
+}
+
+// SetLastLog sets last time the logger was used
+func (l *CSVFileLogger) SetLastLog(t time.Time) {
+	l.llMutex.Lock()
+	defer l.llMutex.Unlock()
+	l.lastLog = t
+}

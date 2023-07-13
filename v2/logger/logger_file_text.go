@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/lazybark/lazyevent/v2/events"
@@ -14,9 +15,11 @@ type PlaintextFileLogger struct {
 	rotateFiles    bool
 	rotateDuration time.Duration
 	lastLog        time.Time
+	llMutex        *sync.RWMutex
 	lTypes         []events.LogType
 	filepath       string
 	file           *os.File
+	fileMutex      *sync.Mutex
 }
 
 // NewPlaintext returns logger capable of appending strings to text file
@@ -34,13 +37,18 @@ func NewPlaintext(path string, pureText bool, truncate bool, rotateFiles int, lT
 		lTypes:         lTypes,
 		filepath:       path,
 		file:           f,
+		llMutex:        &sync.RWMutex{},
+		fileMutex:      &sync.Mutex{},
 	}, nil
 }
 
 // Log pushes event data into default output
 func (l *PlaintextFileLogger) Log(e events.Event, timeFormat string) error {
+	l.SetLastLog(time.Now())
+	l.fileMutex.Lock()
+	defer l.fileMutex.Unlock()
 	//Make new file in case old one is... old
-	if time.Since(l.lastLog) > l.rotateDuration && l.rotateFiles {
+	if time.Since(l.LastLog()) > l.rotateDuration && l.rotateFiles {
 		l.file.Close()
 		f, err := makeLogFile(l.filepath, true, "log")
 		if err != nil {
@@ -49,7 +57,6 @@ func (l *PlaintextFileLogger) Log(e events.Event, timeFormat string) error {
 		l.file = f
 	}
 
-	l.lastLog = time.Now()
 	log := ""
 	if l.pureText {
 		log = FormatPureText(e)
@@ -66,3 +73,17 @@ func (l *PlaintextFileLogger) Log(e events.Event, timeFormat string) error {
 
 // Type returns set of types supported by the logger
 func (l *PlaintextFileLogger) Type() []events.LogType { return l.lTypes }
+
+// LastLog returns last time the logger was used
+func (l *PlaintextFileLogger) LastLog() time.Time {
+	l.llMutex.RLock()
+	defer l.llMutex.RUnlock()
+	return l.lastLog
+}
+
+// SetLastLog sets last time the logger was used
+func (l *PlaintextFileLogger) SetLastLog(t time.Time) {
+	l.llMutex.Lock()
+	defer l.llMutex.Unlock()
+	l.lastLog = t
+}
