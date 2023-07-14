@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	logger "github.com/lazybark/lazyevent/v3"
+	logger "github.com/lazybark/lazyevent/v4"
 )
 
 func main() {
