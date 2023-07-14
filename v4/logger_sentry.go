@@ -43,7 +43,7 @@ func (l *SentryLogger) Log(e Event, timeFormat string) error {
 	//timeFormat is unused here and is left to compatibility with the interface
 
 	defer sentry.Flush(2 * time.Second)
-	sentry.CaptureMessage(FormatOutputPureText(e))
+	sentry.CaptureMessage(FormatOutputSentry(e))
 
 	return nil
 }
