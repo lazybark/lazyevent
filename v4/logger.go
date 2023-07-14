@@ -24,7 +24,7 @@ var LogPattern = "%s	%s	%s	%s	%s\n"
 var LogPatternPureText = "%s\n"
 
 // SentryPattern is used to create records for Sentry
-var SentryPattern = "%s %s %s"
+var SentryPattern = "[%s] %s %s %s"
 
 // FormatOutput returns event data in string formatted accordingly to LogPattern
 func FormatOutput(e Event, timeFormat string) string {
@@ -36,8 +36,8 @@ func FormatOutputPureText(e Event) string {
 }
 
 // FormatOutputSentry returns event data in string formatted accordingly to SentryPattern
-func FormatOutputSentry(e Event) string {
-	return fmt.Sprintf(SentryPattern, e.Level, e.Source, e.Text)
+func FormatOutputSentry(e Event, appID string) string {
+	return fmt.Sprintf(SentryPattern, appID, e.Level, e.Source, e.Text)
 }
 
 type LogPatternJSON struct {
