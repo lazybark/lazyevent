@@ -11,6 +11,7 @@ import (
 // LogProcessor manages all available loggers, processes log errors
 // and sends events to external routine if needed
 type LogProcessor struct {
+	useID        bool
 	timeFormat   string
 	loggers      []ILogger
 	useChan      bool
@@ -29,13 +30,13 @@ type Force struct {
 
 // New creates new LogProcessor with selected parameters.
 //
-// If timeFormat is an empty string, time.UnixDate will be used
-func New(timeFormat string, errChan chan (error), reportErrors bool, la ...ILogger) *LogProcessor {
+// If timeFormat is an empty string, time.UnixDate will be used. If useID is false, events will have e,pty ID
+func New(useID bool, timeFormat string, errChan chan (error), reportErrors bool, la ...ILogger) *LogProcessor {
 	evChan := make(chan (Event))
 	if timeFormat == "" {
 		timeFormat = time.UnixDate
 	}
-	p := &LogProcessor{timeFormat: timeFormat, evChan: evChan, errChan: errChan, reportErrors: reportErrors, loggers: la}
+	p := &LogProcessor{useID: useID, timeFormat: timeFormat, evChan: evChan, errChan: errChan, reportErrors: reportErrors, loggers: la}
 
 	return p
 }

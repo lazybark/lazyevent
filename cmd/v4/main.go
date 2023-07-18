@@ -28,7 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 	//New LogProcessor to rule them all
-	p := logger.New("", make(chan error), false, cli, cli2, ptl, js, csv)
+	p := logger.New(true, "", make(chan error), false, cli, cli2, ptl, js, csv)
 
 	//Log simple messages with default parameters
 	//.Verbose() here to avoid doubles in CLI output as we have two CLI loggers above
