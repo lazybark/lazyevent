@@ -76,10 +76,12 @@ func (lp *LogProcessor) AddLoggers(la ...ILogger) {
 // It panics after logging PANIC-level and calls to
 // exit(2) after logging FATAL event.
 func (lp *LogProcessor) Log(e Event) {
-	//Set ID for event to avoid ambiguity in logs.
-	//Skip in case it has custom ID
-	if e.ID == "" {
-		e.ID = uuid.New().String()
+	if lp.useID {
+		//Set ID for event to avoid ambiguity in logs.
+		//Skip in case it has custom ID
+		if e.ID == "" {
+			e.ID = uuid.New().String()
+		}
 	}
 
 	if !e.TimeFixed {

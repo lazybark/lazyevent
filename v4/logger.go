@@ -17,7 +17,16 @@ type ILogger interface {
 
 // LogPattern is the default log pattern to transform events into text messages.
 // Structure is: eventID->time->level->source->text
-var LogPattern = "%s	%s	%s	%s	%s\n"
+var (
+	logPatterns = []string{
+		"",
+		"%s\n",
+		"%s	%s\n",
+		"%s	%s	%s\n",
+		"%s	%s	%s	%s\n",
+		"%s	%s	%s	%s	%s\n",
+	}
+)
 
 // LogPatternPureText is used to create pure text messages without time, id, etc.
 // Only line break is added.
@@ -28,7 +37,20 @@ var SentryPattern = "[%s] %s %s %s"
 
 // FormatOutput returns event data in string formatted accordingly to LogPattern
 func FormatOutput(e Event, timeFormat string) string {
-	return fmt.Sprintf(LogPattern, e.ID, e.Time.Format(timeFormat), e.Level, e.Source, e.Text)
+	var args []any
+	if e.ID != "" {
+		args = append(args, e.ID)
+	}
+	args = append(args, e.Time.Format(timeFormat))
+	if e.Level.String() != "" {
+		args = append(args, e.Level)
+	}
+	if e.Source.String() != "" {
+		args = append(args, e.Source)
+	}
+	args = append(args, e.Text)
+
+	return fmt.Sprintf(logPatterns[len(args)], args...)
 }
 
 func FormatOutputPureText(e Event) string {
@@ -37,6 +59,16 @@ func FormatOutputPureText(e Event) string {
 
 // FormatOutputSentry returns event data in string formatted accordingly to SentryPattern
 func FormatOutputSentry(e Event, appID string) string {
+	if e.Level.String() == "" && e.Source.String() == "" {
+		return fmt.Sprintf("%s	%s\n", appID, e.Text)
+	}
+	if e.Level.String() == "" {
+		return fmt.Sprintf("%s	%s	%s\n", appID, e.Source, e.Text)
+	}
+	if e.Source.String() == "" {
+		return fmt.Sprintf("%s	%s	%s\n", appID, e.Level, e.Text)
+	}
+
 	return fmt.Sprintf(SentryPattern, appID, e.Level, e.Source, e.Text)
 }
 
