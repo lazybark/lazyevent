@@ -1,4 +1,6 @@
 # lazyevent
+[![Test](https://github.com/lazybark/lazyevent/actions/workflows/test.yml/badge.svg)](https://github.com/lazybark/lazyevent/actions/workflows/test.yml)
+
 LazyEvent - easy to use logger package that can be
 customized for almost any app. It treats events as objects with properties that can
                                     be created, modified, and logged (or not). An event is any event during runtime,
