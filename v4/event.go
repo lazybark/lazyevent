@@ -26,6 +26,7 @@ type Event struct {
 
 func (e Event) SetText(t string) Event {
 	e.Text = t
+
 	return e
 }
 
@@ -33,6 +34,7 @@ func (e Event) SetText(t string) Event {
 // each time event is logged
 func (e Event) FixTime() Event {
 	e.TimeFixed = true
+
 	return e
 }
 
@@ -40,24 +42,28 @@ func (e Event) FixTime() Event {
 // each time event is logged
 func (e Event) UnFixTime() Event {
 	e.TimeFixed = false
+
 	return e
 }
 
 // Src returns event with source = s
 func (e Event) Src(s Source) Event {
 	e.Source = s
+
 	return e
 }
 
 // FlushID cleans event ID
 func (e Event) FlushID() Event {
 	e.ID = ""
+
 	return e
 }
 
 // SetID sets event ID. It will be used by LogProcessor
 func (e Event) SetID(id string) Event {
 	e.ID = id
+
 	return e
 }
 

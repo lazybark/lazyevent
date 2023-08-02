@@ -31,7 +31,6 @@ const (
 )
 
 var eLevelNames = [...]string{
-	"",
 	"INFO",
 	"NOTE",
 	"WARNING",
@@ -45,7 +44,8 @@ func (l Level) String() string {
 	if l <= el_start || l >= el_end {
 		return ""
 	}
-	return eLevelNames[l]
+
+	return eLevelNames[l-1]
 }
 
 //IsError returns true in case level of event is high enough

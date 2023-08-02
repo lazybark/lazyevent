@@ -26,6 +26,7 @@ func (ed EvDefault) setProps(e Event) Event {
 	if ed.TimeFixed {
 		e.TimeFixed = true
 	}
+
 	return e
 }
 
