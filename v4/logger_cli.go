@@ -34,6 +34,7 @@ func (l *CLI) Log(e Event, timeFormat string) error {
 		log = FormatColors(e.Format, log)
 	}
 	fmt.Print(log)
+
 	return nil
 }
 

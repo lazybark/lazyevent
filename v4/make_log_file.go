@@ -23,5 +23,6 @@ func makeLogFile(path string, truncate bool, ext string) (*os.File, error) {
 	if err != nil {
 		return nil, fmt.Errorf("[makeLogFile] error making log path: %w", err)
 	}
+
 	return f, err
 }

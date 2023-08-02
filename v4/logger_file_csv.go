@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"time"
 )
@@ -14,15 +13,18 @@ type CSVFileLogger struct {
 	lastLog        time.Time
 	llMutex        *sync.RWMutex
 	filepath       string
-	file           *os.File
+	file           IFile
 	fileMutex      *sync.Mutex
 }
 
 // NewCSVtext returns logger capable of creating csv file records.
-func NewCSVtext(path string, truncate bool, rotateFiles int, lTypes ...LogType) (*CSVFileLogger, error) {
-	f, err := makeLogFile(path, truncate, "csv")
-	if err != nil {
-		return nil, fmt.Errorf("[NewCSVtext] %w", err)
+func NewCSVtext(path string, truncate bool, rotateFiles int, f IFile, lTypes ...LogType) (*CSVFileLogger, error) {
+	var err error
+	if f == nil {
+		f, err = makeLogFile(path, truncate, "csv")
+		if err != nil {
+			return nil, fmt.Errorf("[NewCSVtext] %w", err)
+		}
 	}
 
 	csv := &CSVFileLogger{
@@ -81,6 +83,7 @@ func (l *CSVFileLogger) Type() []LogType { return l.lTypes }
 func (l *CSVFileLogger) LastLog() time.Time {
 	l.llMutex.RLock()
 	defer l.llMutex.RUnlock()
+
 	return l.lastLog
 }
 

@@ -15,6 +15,13 @@ type ILogger interface {
 	Type() []LogType
 }
 
+// IFile represents file in the filesystem that's used to log events
+type IFile interface {
+	Write(b []byte) (n int, err error)
+	WriteString(s string) (n int, err error)
+	Close() error
+}
+
 // LogPattern is the default log pattern to transform events into text messages.
 // Structure is: eventID->time->level->source->text
 var (

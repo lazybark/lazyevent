@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"time"
 )
@@ -14,7 +13,7 @@ type JSONFileLogger struct {
 	lastLog        time.Time
 	llMutex        *sync.RWMutex
 	filepath       string
-	file           *os.File
+	file           IFile
 	fileMutex      *sync.Mutex
 	firstLine      bool
 }
@@ -23,10 +22,13 @@ type JSONFileLogger struct {
 //
 // Note: current realization fills file with json-objects, but does not create array of records ([...]).
 // It makes log writing faster, but the only way to read valid JSON from the file is to frame its contents by [] before parsing.
-func NewJSONtext(path string, truncate bool, rotateFiles int, lTypes ...LogType) (*JSONFileLogger, error) {
-	f, err := makeLogFile(path, truncate, "json")
-	if err != nil {
-		return nil, fmt.Errorf("[NewJSONtext] %w", err)
+func NewJSONtext(path string, truncate bool, rotateFiles int, f IFile, lTypes ...LogType) (*JSONFileLogger, error) {
+	var err error
+	if f == nil {
+		f, err = makeLogFile(path, truncate, "json")
+		if err != nil {
+			return nil, fmt.Errorf("[NewJSONtext] %w", err)
+		}
 	}
 
 	return &JSONFileLogger{
@@ -84,6 +86,7 @@ func (l *JSONFileLogger) Type() []LogType { return l.lTypes }
 func (l *JSONFileLogger) LastLog() time.Time {
 	l.llMutex.RLock()
 	defer l.llMutex.RUnlock()
+
 	return l.lastLog
 }
 

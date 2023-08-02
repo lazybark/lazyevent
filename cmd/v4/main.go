@@ -15,15 +15,15 @@ func main() {
 	//CLI for errors only
 	cli2 := logger.NewCLI(true, logger.ErrorFlow)
 	//Text loggers for all event types
-	ptl, err := logger.NewPlaintext("some", false, false, 1, logger.Any)
+	ptl, err := logger.NewPlaintext("some", false, false, 1, nil, logger.Any)
 	if err != nil {
 		log.Fatal(err)
 	}
-	js, err := logger.NewJSONtext("some", false, 1, logger.Any)
+	js, err := logger.NewJSONtext("some", false, 1, nil, logger.Any)
 	if err != nil {
 		log.Fatal(err)
 	}
-	csv, err := logger.NewCSVtext("some", true, 1, logger.Any)
+	csv, err := logger.NewCSVtext("some", true, 1, nil, logger.Any)
 	if err != nil {
 		log.Fatal(err)
 	}

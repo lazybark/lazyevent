@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"time"
 )
@@ -16,15 +15,22 @@ type PlaintextFileLogger struct {
 	llMutex        *sync.RWMutex
 	lTypes         []LogType
 	filepath       string
-	file           *os.File
+	file           IFile
 	fileMutex      *sync.Mutex
 }
 
-// NewPlaintext returns logger capable of appending strings to text file
-func NewPlaintext(path string, pureText bool, truncate bool, rotateFiles int, lTypes ...LogType) (*PlaintextFileLogger, error) {
-	f, err := makeLogFile(path, truncate, "log")
-	if err != nil {
-		return nil, fmt.Errorf("[NewPlaintext] %w", err)
+// NewPlaintext returns logger capable of appending strings to text file.
+//
+// By passing IFile interface as f you can set the initial object to write logs to. Otherwise path & truncate
+// will be used to create new file.
+// Note: if rotateFiles > 0, file will be changed after this period of time any way
+func NewPlaintext(path string, pureText bool, truncate bool, rotateFiles int, f IFile, lTypes ...LogType) (*PlaintextFileLogger, error) {
+	var err error
+	if f == nil {
+		f, err = makeLogFile(path, truncate, "log")
+		if err != nil {
+			return nil, fmt.Errorf("[NewPlaintext] %w", err)
+		}
 	}
 
 	return &PlaintextFileLogger{
@@ -76,6 +82,7 @@ func (l *PlaintextFileLogger) Type() []LogType { return l.lTypes }
 func (l *PlaintextFileLogger) LastLog() time.Time {
 	l.llMutex.RLock()
 	defer l.llMutex.RUnlock()
+
 	return l.lastLog
 }
 
