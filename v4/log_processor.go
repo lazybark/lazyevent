@@ -223,7 +223,7 @@ func (lp *LogProcessor) FatalInCaseErr(err interface{}, lt ...LogType) {
 	}
 }
 
-// LogErrOnly simply logs any error or does nothind in case nil.
+// LogErrOnly simply logs any error or does nothing in case nil.
 //
 // May generate doubles in case same logger is used for several types
 // presenting in lt. Doubles will have same ID
