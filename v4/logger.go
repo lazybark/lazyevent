@@ -11,7 +11,12 @@ import (
 // specific event types and log events into abstract log.
 // It can be CLI, text, SQL, Redis, Sentry, etc.
 type ILogger interface {
-	Log(Event, string) error
+	//Log processes event and logs according to logger's internal rules
+	Log(e Event, timeFormat string) error
+
+	//Type returns whole list of types a logger should receive.
+	//Normally you don't need to check event type in the logger as the log processor will not
+	//send events that have wrong LogType
 	Type() []LogType
 }
 
