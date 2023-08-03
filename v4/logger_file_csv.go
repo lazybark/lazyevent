@@ -18,6 +18,10 @@ type CSVFileLogger struct {
 }
 
 // NewCSVtext returns logger capable of creating csv file records.
+//
+// By passing IFile interface as f you can set the initial object to write logs to. Otherwise path & truncate
+// will be used to create new file.
+// Note: if rotateFiles > 0, file will be changed after this period of time any way
 func NewCSVtext(path string, truncate bool, rotateFiles int, f IFile, lTypes ...LogType) (*CSVFileLogger, error) {
 	var err error
 	if f == nil {
