@@ -91,7 +91,12 @@ Also LogProcessor has several methods to log errors only and ignore other event 
 All you need is to make it implement the ILogger interface:
 ```
 type ILogger interface {
-	Log(Event, string) error
+	//Log processes event and logs according to logger's internal rules
+	Log(e Event, timeFormat string) error
+
+	//Type returns whole list of types a logger should receive.
+	//Normally you don't need to check event type in the logger as the log processor will not
+	//send events that have wrong LogType
 	Type() []LogType
 }
 ```
