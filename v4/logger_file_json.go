@@ -21,7 +21,11 @@ type JSONFileLogger struct {
 // NewJSONtext returns logger capable of creating json-encoded records in text file.
 //
 // Note: current realization fills file with json-objects, but does not create array of records ([...]).
-// It makes log writing faster, but the only way to read valid JSON from the file is to frame its contents by [] before parsing.
+// It makes log writing faster, but the only way to read valid JSON from the file is to frame its contents by [] before parsing..
+//
+// By passing IFile interface as f you can set the initial object to write logs to. Otherwise path & truncate
+// will be used to create new file.
+// Note: if rotateFiles > 0, file will be changed after this period of time any way
 func NewJSONtext(path string, truncate bool, rotateFiles int, f IFile, lTypes ...LogType) (*JSONFileLogger, error) {
 	var err error
 	if f == nil {
