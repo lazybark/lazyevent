@@ -124,7 +124,7 @@ import (
 	logger "github.com/lazybark/lazyevent/v4"
 )
 
-// LGR is a simple struct witl log processor in it
+// LGR is a simple struct with log processor in it
 type LGR struct {
 	p *logger.LogProcessor
 }
