@@ -35,9 +35,9 @@ type Event struct {
 }
 ```
 
-**ID:** unique identifier of event. Log processor will generate ID (using Google's UUID) only if ID was empty at the moment Log() was called and if LP had option useID = true. If you wish to use an event as a template, then ID should stay empty. But if you need to use own IDs, then FlushID() can be called to clean it, or SetID() to set new one. ID = "..." is a good, but not very readable option (i think).
+**ID:** unique identifier of event. Log processor will generate ID (using Google's UUID) only if ID was empty at the moment `Log()` was called and if LP had option `useID = true`. If you wish to use an event as a template, then ID should stay empty. But if you need to use own IDs, then FlushID() can be called to clean it, or `SetID()` to set new one. `ID = "..."` is a good, but not very readable option (i think).
 
-**Level:** one of predefined levels that determines how critical the event is. Higher is worse. Levels are: INFO, NOTE, WARN, ERR, CRIT, PANIC, FATAL. Events with PANIC and FATAL will cause Log processor to call panic() or exit() after logging.
+**Level:** one of predefined levels that determines how critical the event is. Higher is worse. Levels are: `INFO`, `NOTE`, WARN, `ERR`, `CRIT`, `PANIC`, `FATAL`. Events with `PANIC` and `FATAL` will cause Log processor to call `panic()` or `exit()` after logging.
 
 **Type:** type of logger that should be used to log event. Type helps split logs by meaning, so main log will not be populated with debug or verbose info. Predefined types are Any, Main, ErrorFlow, Verbose and Debug. But you can create own types and pass to default or custom loggers.
 
