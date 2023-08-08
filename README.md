@@ -52,9 +52,9 @@ type Event struct {
 **TimeFixed:** bool value that tells Log processor to NOT update event time before logging. By default this value is updated to avoid time shift in cases when there is a latency between event creation and logging.
 
 ### Create & update event
-There are two convenient ways to create an event: directly from events package and from an object called EvDefault.
+There are two convenient ways to create an event: directly from events package and from an object called `EvDefault`.
 
-The first case is suitable when we have only few events in a function or when all events are more or less standard. Because events created this way would have only default field values, except Level and Text. It can be done by calling events.LEVEL_NAME("event text") (possible levels: Info, Note, Warning, Error, Critical, Panic, Fatal). Empty() will create an event with INFO level, but empty text.
+The first case is suitable when we have only few events in a function or when all events are more or less standard. Because events created this way would have only default field values, except `Level` and `Text`. It can be done by calling `LEVEL_NAME("event text")` (possible levels: `Info`, `Note`, `Warning`, `Error`, `Critical`, `Panic`, `Fatal`). `Empty()` will create an event with INFO level, but empty text.
 
 Second case is more convenient when we need to deploy many similar events across the app or function. We can create object of events.EvDefault as a template and then generate events with methods described above. All events will have Source, Type, Format and TimeFixed parameters similar to instance of EvDefault.
 
@@ -68,12 +68,12 @@ ed := events.EvDefault{
 ```
 We also can put an event together manually by specifying all fields values if there is any need of some custom options.
 
-Event updating is a simple process that can happen via manual value setting or default methods: default types and formats can be set by calling methods like e.Verbose() or e.Red(), same goes for levels described above. To set source, you would need to call e.Src(). Text can be changed via e.SetText() and fixing/unfixing time is possible via e.FixTime()/UnFixTime()
+Event updating is a simple process that can happen via manual value setting or default methods: default types and formats can be set by calling methods like `e.Verbose()` or `e.Red()`, same goes for levels described above. To set source, you would need to call `e.Src()`. Text can be changed via `e.SetText()` and fixing/unfixing time is possible via `e.FixTime()/UnFixTime()`
 
 ### Log event
-Event can be logged by calling Log() on lproc.LogProcessor.
+Event can be logged by calling `Log()` on `LogProcessor`.
 
-Processor is created by calling lproc.New(timeFormat string, errChan chan (error), reportErrors bool, la ...logger.ILogger). timeFormat here represents template to format event time in log records. For default loggers it should be one of formats we use with time.Time.Format(), but custom loggers may use any other format. If your logger uses something special in that case, you may want to have only you custom loggers in LogProcessor to avoid problems with default ones. errChan will be used to send errors from loggers in case reportErrors = true.
+Processor is created by calling `New(timeFormat string, errChan chan (error), reportErrors bool, la ...ILogger)`. timeFormat here represents template to format event time in log records. For default loggers it should be one of formats we use with time.Time.Format(), but custom loggers may use any other format. If your logger uses something special in that case, you may want to have only you custom loggers in LogProcessor to avoid problems with default ones. errChan will be used to send errors from loggers in case reportErrors = true.
 
 Also LogProcessor has several methods to log errors only and ignore other event levels. LogErrOnly() will drop a log only in case it will receive error or event with ERR level. FatalInCaseErr() will do the same, but only with error or event of FATAL level. PanicInCaseErr() will act accordingly.
 
@@ -102,13 +102,13 @@ type ILogger interface {
 ```
 
 ## Tips
-You can avoid creating event ID if you set useID parameter for logger.New() function to false. All events will not have IDs.
+You can avoid creating event ID if you set `useID` parameter for `logger.New()` function to false. All events will not have IDs.
 
 Default CLI & plaintext file loggers have pureText directive to print out pure log event text (without time, id, level, etc. - but with color formatting in case CLI).
 
 If you leave fields ID, Source or Level empty, they will still be present on .csv and .json default loggers so log files will be available for correct parsing.
 
-You can use custom file for default text loggers (.log, .csv, .json): just pass IFile interface wich is, for example, is *os.File. But if you set rotateFiles > 0, the file will be changed after rotateFiles * time.Minute. So if you want to use custom file, set rotateFiles to 0.
+You can use custom file for default text loggers (.log, .csv, .json): just pass IFile interface wich is, for example, is `*os.File`. But if you set `rotateFiles > 0`, the file will be changed after `rotateFiles * time.Minute`. So if you want to use custom file, set rotateFiles to 0.
 
 ## Making a part of different project logic
 It's actually a good idea to create small interface in your app that suits your needs. Then make a struct that holds a Lazyevent log processor and has methods to define specific events (internally using Lazyevent methods). This way you can configure logger for specific logic of the app and use with ease.
