@@ -50,7 +50,7 @@ func main() {
 	p.Log(logger.Error("That one has come from weird place").Src(weird).Verbose())
 
 	//Using of TimeFixed
-	e := logger.Error("Some error occured").FixTime().Verbose()
+	e := logger.Error("Some error occurred").FixTime().Verbose()
 	p.Log(e)
 	time.Sleep(2 * time.Second)
 	p.Log(e.SetText("And the same moment something else happened!"))
@@ -83,7 +83,7 @@ func GetErr() error {
 }
 
 func GetErrEvent() logger.Event {
-	return logger.Error("error event occured!")
+	return logger.Error("error event occurred!")
 }
 
 func GetString() string {

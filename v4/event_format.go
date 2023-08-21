@@ -1,7 +1,7 @@
 package logger
 
 // Format represents any possible format to output log strings.
-// Default formats are for colored CLI ouput, but logger developers
+// Default formats are for colored CLI output, but logger developers
 // can create new formats to suit specific logger options.
 type Format int
 
