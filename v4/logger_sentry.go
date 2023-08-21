@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getsentry/sentry-go"
+	sentry "github.com/getsentry/sentry-go"
 )
 
 // SentryLogger uses Go-native Sentry package to log event. If you need to adjust parameters, use functions defined by

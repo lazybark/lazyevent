@@ -3,7 +3,7 @@ module github.com/lazybark/lazyevent
 go 1.19
 
 require (
-	github.com/getsentry/sentry-go v0.22.0
+	github.com/getsentry/sentry-go v0.23.0
 	github.com/google/uuid v1.3.0
 	github.com/lazybark/go-helpers v1.8.0
 	github.com/stretchr/testify v1.8.4
